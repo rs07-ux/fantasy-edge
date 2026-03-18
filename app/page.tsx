@@ -1,65 +1,245 @@
-import Image from "next/image";
+'use client';
+import { useState } from 'react';
 
 export default function Home() {
+  const [sport, setSport] = useState('NFL');
+  const [tab, setTab] = useState('lineup');
+  const [scoring, setScoring] = useState('PPR');
+  const [week, setWeek] = useState('Week 1');
+  const [roster, setRoster] = useState('');
+  const [context, setContext] = useState('');
+  const [giving, setGiving] = useState('');
+  const [receiving, setReceiving] = useState('');
+  const [needs, setNeeds] = useState('');
+  const [waivers, setWaivers] = useState('');
+  const [weakness, setWeakness] = useState('');
+  const [result, setResult] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const sports = ['NFL', 'NBA', 'MLB', 'NHL'];
+  const tabs = ['lineup', 'trade', 'waiver'];
+
+  async function callAI(prompt: string) {
+    setLoading(true);
+    setResult('');
+    try {
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+      });
+      const data = await res.json();
+      setResult(data.result || 'Something went wrong.');
+    } catch {
+      setResult('Error connecting to AI. Please try again.');
+    }
+    setLoading(false);
+  }
+
+  function analyzeLineup() {
+    if (!roster) return alert('Please enter your roster.');
+    callAI(`You are an expert fantasy ${sport} analyst.
+Sport: ${sport} | Format: ${scoring} | ${week}
+Roster:
+${roster}
+${context ? 'Extra context: ' + context : ''}
+Give me:
+1. Recommended starting lineup with reasoning
+2. Who to sit and why
+3. Top 3 matchup/injury alerts
+4. Confidence level (High/Medium/Low)
+Be specific, concise, and use bullet points.`);
+  }
+
+  function analyzeTrade() {
+    if (!giving || !receiving) return alert('Fill in both sides of the trade.');
+    callAI(`You are an expert fantasy ${sport} analyst.
+Giving up: ${giving}
+Receiving: ${receiving}
+${needs ? 'Team needs: ' + needs : ''}
+Give me:
+1. Clear verdict: Accept, Decline, or Counter?
+2. Value breakdown of each side
+3. How it fits the team
+4. Suggested counter-offer if needed
+Be direct and clear.`);
+  }
+
+  function analyzeWaiver() {
+    if (!waivers) return alert('Enter available waiver players.');
+    callAI(`You are an expert fantasy ${sport} analyst.
+Available: ${waivers}
+${weakness ? 'Team needs: ' + weakness : ''}
+Give me:
+1. Top pickup recommendation with strong reasoning
+2. Second best option
+3. Who to drop to make room
+4. FAAB bid % suggestion
+Focus on both short-term and long-term value.`);
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+              <span className="text-white text-sm">⚡</span>
+            </div>
+            <div>
+              <h1 className="text-base font-semibold text-gray-900">FantasyEdge AI</h1>
+              <p className="text-xs text-gray-500">AI-powered fantasy sports assistant</p>
+            </div>
+          </div>
+          <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium">Free Beta</span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </header>
+
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        {/* Hero */}
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold text-gray-900 mb-3">Win your fantasy league<br />with AI on your side</h2>
+          <p className="text-gray-500 text-base">Get instant lineup advice, trade analysis, and waiver picks powered by Claude AI</p>
         </div>
-      </main>
-    </div>
+
+        {/* Sport selector */}
+        <div className="flex gap-2 justify-center mb-8">
+          {sports.map(s => (
+            <button key={s} onClick={() => setSport(s)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${sport === s ? 'bg-black text-white' : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-400'}`}>
+              {s}
+            </button>
+          ))}
+        </div>
+
+        {/* Tabs */}
+        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-6">
+          <div className="flex border-b border-gray-200">
+            {tabs.map(t => (
+              <button key={t} onClick={() => { setTab(t); setResult(''); }}
+                className={`flex-1 py-3 text-sm font-medium capitalize transition-all ${tab === t ? 'bg-gray-50 text-gray-900 border-b-2 border-black' : 'text-gray-500 hover:text-gray-700'}`}>
+                {t === 'lineup' ? '🏈 Lineup Optimizer' : t === 'trade' ? '🔄 Trade Analyzer' : '📋 Waiver Wire'}
+              </button>
+            ))}
+          </div>
+
+          <div className="p-6">
+            {/* Lineup Tab */}
+            {tab === 'lineup' && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-2">Scoring Format</label>
+                    <select value={scoring} onChange={e => setScoring(e.target.value)}
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-black">
+                      <option>Standard</option>
+                      <option>PPR</option>
+                      <option>Half PPR</option>
+                      <option>DFS</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-2">Week</label>
+                    <select value={week} onChange={e => setWeek(e.target.value)}
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-black">
+                      {Array.from({length: 18}, (_, i) => <option key={i}>Week {i + 1}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-2">Your Roster</label>
+                  <textarea value={roster} onChange={e => setRoster(e.target.value)} rows={5}
+                    placeholder={`QB: Lamar Jackson, Jalen Hurts\nRB: Christian McCaffrey, Derrick Henry\nWR: Tyreek Hill, Ja'Marr Chase\nTE: Travis Kelce\nK: Justin Tucker\nDST: SF 49ers`}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-black resize-none" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-2">Extra Context (optional)</label>
+                  <textarea value={context} onChange={e => setContext(e.target.value)} rows={2}
+                    placeholder="Any injuries, weather, or matchup notes..."
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-black resize-none" />
+                </div>
+                <button onClick={analyzeLineup} disabled={loading}
+                  className="w-full bg-black text-white py-3 rounded-lg text-sm font-medium hover:bg-gray-800 transition-all disabled:opacity-40">
+                  {loading ? 'Analyzing...' : 'Optimize My Lineup →'}
+                </button>
+              </div>
+            )}
+
+            {/* Trade Tab */}
+            {tab === 'trade' && (
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-2">Players You're Giving Up</label>
+                  <textarea value={giving} onChange={e => setGiving(e.target.value)} rows={3}
+                    placeholder="E.g.: Derrick Henry, DeVonta Smith"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-black resize-none" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-2">Players You're Receiving</label>
+                  <textarea value={receiving} onChange={e => setReceiving(e.target.value)} rows={3}
+                    placeholder="E.g.: Justin Jefferson, Tony Pollard"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-black resize-none" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-2">Your Team Needs</label>
+                  <textarea value={needs} onChange={e => setNeeds(e.target.value)} rows={2}
+                    placeholder="E.g.: Need RB depth, strong at WR, week 14 playoff push"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-black resize-none" />
+                </div>
+                <button onClick={analyzeTrade} disabled={loading}
+                  className="w-full bg-black text-white py-3 rounded-lg text-sm font-medium hover:bg-gray-800 transition-all disabled:opacity-40">
+                  {loading ? 'Analyzing...' : 'Analyze This Trade →'}
+                </button>
+              </div>
+            )}
+
+            {/* Waiver Tab */}
+            {tab === 'waiver' && (
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-2">Available Waiver Players</label>
+                  <textarea value={waivers} onChange={e => setWaivers(e.target.value)} rows={3}
+                    placeholder="E.g.: Jaylen Warren, Zack Moss, Rashid Shaheed"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-black resize-none" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-2">Your Team Weaknesses</label>
+                  <textarea value={weakness} onChange={e => setWeakness(e.target.value)} rows={2}
+                    placeholder="E.g.: Need a WR2, backup RB is on bye week 11"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-black resize-none" />
+                </div>
+                <button onClick={analyzeWaiver} disabled={loading}
+                  className="w-full bg-black text-white py-3 rounded-lg text-sm font-medium hover:bg-gray-800 transition-all disabled:opacity-40">
+                  {loading ? 'Analyzing...' : 'Get Waiver Advice →'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Result */}
+        {(loading || result) && (
+          <div className="bg-white rounded-2xl border border-gray-200 p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-sm font-medium text-gray-700">AI Recommendation</span>
+            </div>
+            {loading ? (
+              <div className="flex gap-1 py-4">
+                <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce delay-100"></div>
+                <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce delay-200"></div>
+              </div>
+            ) : (
+              <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{result}</p>
+            )}
+          </div>
+        )}
+
+        {/* Footer */}
+        <p className="text-center text-xs text-gray-400 mt-8">Powered by Claude AI · FantasyEdge AI © 2026</p>
+      </div>
+    </main>
   );
 }
