@@ -80,7 +80,6 @@ Focus on both short-term and long-term value.`);
 
   return (
     <main className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -97,13 +96,11 @@ Focus on both short-term and long-term value.`);
       </header>
 
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Hero */}
         <div className="text-center mb-10">
           <h2 className="text-3xl font-bold text-gray-900 mb-3">Win your fantasy league<br />with AI on your side</h2>
           <p className="text-gray-500 text-base">Get instant lineup advice, trade analysis, and waiver picks powered by Claude AI</p>
         </div>
 
-        {/* Sport selector */}
         <div className="flex gap-2 justify-center mb-8">
           {sports.map(s => (
             <button key={s} onClick={() => setSport(s)}
@@ -113,7 +110,6 @@ Focus on both short-term and long-term value.`);
           ))}
         </div>
 
-        {/* Tabs */}
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-6">
           <div className="flex border-b border-gray-200">
             {tabs.map(t => (
@@ -125,7 +121,6 @@ Focus on both short-term and long-term value.`);
           </div>
 
           <div className="p-6">
-            {/* Lineup Tab */}
             {tab === 'lineup' && (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -166,7 +161,6 @@ Focus on both short-term and long-term value.`);
               </div>
             )}
 
-            {/* Trade Tab */}
             {tab === 'trade' && (
               <div className="space-y-4">
                 <div>
@@ -194,7 +188,6 @@ Focus on both short-term and long-term value.`);
               </div>
             )}
 
-            {/* Waiver Tab */}
             {tab === 'waiver' && (
               <div className="space-y-4">
                 <div>
@@ -218,7 +211,6 @@ Focus on both short-term and long-term value.`);
           </div>
         </div>
 
-        {/* Result */}
         {(loading || result) && (
           <div className="bg-white rounded-2xl border border-gray-200 p-6">
             <div className="flex items-center gap-2 mb-4">
@@ -237,8 +229,49 @@ Focus on both short-term and long-term value.`);
           </div>
         )}
 
-        {/* Footer */}
-        <p className="text-center text-xs text-gray-400 mt-8">Powered by Claude AI · FantasyEdge AI © 2026</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12 mb-8">
+          <div className="bg-white rounded-2xl border border-gray-200 p-6">
+            <div className="text-sm font-medium text-gray-500 mb-1">Free</div>
+            <div className="text-3xl font-bold text-gray-900 mb-1">$0<span className="text-base font-normal text-gray-400">/mo</span></div>
+            <p className="text-sm text-gray-500 mb-4">Get started today</p>
+            <ul className="space-y-2 text-sm text-gray-600 mb-6">
+              <li>✓ 3 AI requests per day</li>
+              <li>✓ Lineup optimizer</li>
+              <li>✓ Trade analyzer</li>
+              <li>✓ Waiver wire advice</li>
+            </ul>
+            <div className="w-full text-center py-2 rounded-lg border border-gray-200 text-sm text-gray-500">Current Plan</div>
+          </div>
+          <div className="bg-black rounded-2xl p-6 relative">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-400 text-black text-xs font-bold px-3 py-1 rounded-full">MOST POPULAR</div>
+            <div className="text-sm font-medium text-gray-400 mb-1">Pro</div>
+            <div className="text-3xl font-bold text-white mb-1">$9.99<span className="text-base font-normal text-gray-400">/mo</span></div>
+            <p className="text-sm text-gray-400 mb-4">For serious fantasy players</p>
+            <ul className="space-y-2 text-sm text-gray-300 mb-6">
+              <li>✓ Unlimited AI requests</li>
+              <li>✓ Everything in Free</li>
+              <li>✓ Player injury alerts</li>
+              <li>✓ AI Fantasy Coach chat</li>
+              <li>✓ Season simulator</li>
+              <li>✓ Weakness Exploiter</li>
+            </ul>
+            <button onClick={async () => {
+              const email = prompt('Enter your email to subscribe:');
+              if (!email) return;
+              const res = await fetch('/api/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+              });
+              const data = await res.json();
+              if (data.url) window.location.href = data.url;
+            }} className="w-full bg-white text-black py-3 rounded-lg text-sm font-medium hover:bg-gray-100 transition-all">
+              Upgrade to Pro →
+            </button>
+          </div>
+        </div>
+
+        <p className="text-center text-xs text-gray-400 mb-8">Powered by Claude AI · FantasyEdge AI © 2026</p>
       </div>
     </main>
   );
